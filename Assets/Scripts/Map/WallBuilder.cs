@@ -18,7 +18,7 @@ public class WallBuilder : MonoBehaviour
         }
     }
 
-    public Mesh BuildWall(GameObject targetObject)
+    public void BuildWall(GameObject targetObject)
     {
         MeshFilter filter = targetObject.GetComponent<MeshFilter>();
         if (filter == null) filter = targetObject.AddComponent<MeshFilter>();
@@ -44,9 +44,9 @@ public class WallBuilder : MonoBehaviour
             new Vector3(0, 0, 0),    // 0: 前面 上
             new Vector3(-1, 0, -height),  // 1: 前面 左下
             new Vector3(1, 0, -height),   // 2: 前面 右下
-            new Vector3(0, -0.5f, 0),    // 3: 背面 上
-            new Vector3(-1, -0.5f, -height),  // 4: 背面 左下
-            new Vector3(1, -0.5f, -height)    // 5: 背面 右下
+            new Vector3(0, -0.25f, 0),    // 3: 背面 上
+            new Vector3(-1, -0.25f, -height),  // 4: 背面 左下
+            new Vector3(1, -0.25f, -height)    // 5: 背面 右下
         };
 
         // 三角形の構成 (右回り（時計回り）じゃないとバグるらしい)
@@ -77,7 +77,5 @@ public class WallBuilder : MonoBehaviour
 
         // 当たり判定用のタグをアタッチ
         targetObject.tag = "Wall";
-
-        return mesh;
     }
 }

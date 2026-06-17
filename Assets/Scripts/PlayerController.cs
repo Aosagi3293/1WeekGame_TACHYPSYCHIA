@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
     public float swipeThreshold = 50f; // タッチスワイプの最低移動距離
 
     // タッチスワイプの判定用変数
@@ -12,7 +14,23 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
 
-    public float moveSpeed = 5f;
+    public float acceleration = 10f;
+    public float damping = 0.92f;
+    public float maxSpeed = 1f;
+
+    private Vector3 velocity;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Update()
     {
@@ -81,11 +99,28 @@ public class PlayerController : MonoBehaviour
     // 移動用関数
     private void MovePlayer()
     {
-        // X座標とZ座標に変換
-        Vector3 dir = new Vector3(moveInput.x, 0, moveInput.y);
-        transform.position += dir * moveSpeed * Time.deltaTime;
+        if(GameManager.Instance.state != GameState.Play) return;
 
-        moveInput = Vector2.zero; // 毎フレームリセット
+        Vector3 inputDir = new Vector3(moveInput.x, 0, moveInput.y);
+
+        // 加速
+        velocity += inputDir * acceleration * Time.deltaTime;
+
+        // 減速
+        if (inputDir.magnitude < 0.1f)
+        {
+            velocity *= 0.8f; // 入力なし時は強く減速
+        }
+        else
+        {
+            velocity *= damping;
+        }
+
+        // 最大速度制限
+        velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
+
+        // 移動
+        transform.position += velocity * Time.deltaTime;
     }
 
     // 接触検知
@@ -96,6 +131,18 @@ public class PlayerController : MonoBehaviour
         {
             GameManager.Instance.state = GameState.Start;
             Debug.Log("Playerが死亡しました");
+
+            var score = ScoreManager.Instance.score;
+            Debug.Log($"今回のスコア： {score}");
+
+            GameManager.Instance.ResetGame();
         }
+    }
+
+    public float ReturnPosition()
+    {
+        var posY = this.gameObject.transform.position.y;
+
+        return posY;
     }
 }
