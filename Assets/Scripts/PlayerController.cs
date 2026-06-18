@@ -3,6 +3,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
+    private Rigidbody rb;
+
     public float swipeThreshold = 50f; // タッチスワイプの最低移動距離
 
     // タッチスワイプの判定用変数
@@ -12,14 +16,43 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
 
-    public float moveSpeed = 5f;
+    public float acceleration = 10f;
+    public float damping = 0.1f;
+    public float maxSpeed = 1f;
+
+    private Vector3 velocity;
+
+    private Vector3 currentVelocity;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    private void FixedUpdate()
+    {
+        MovePlayer();   // 移動用関数
+    }
 
     private void Update()
     {
+        if (GameManager.Instance == null) return;
+        if (GameManager.Instance.state != GameState.Play) return;
+
         HandleTouch();  // タッチスワイプ
         HandleKeyboard();   // WASD
-
-        MovePlayer();   // 移動用関数
     }
 
     // タッチスワイプ
@@ -81,21 +114,88 @@ public class PlayerController : MonoBehaviour
     // 移動用関数
     private void MovePlayer()
     {
-        // X座標とZ座標に変換
-        Vector3 dir = new Vector3(moveInput.x, 0, moveInput.y);
-        transform.position += dir * moveSpeed * Time.deltaTime;
+        if (GameManager.Instance == null) return;
+        if (GameManager.Instance.state != GameState.Play) return;
 
-        moveInput = Vector2.zero; // 毎フレームリセット
+        Vector3 inputDir = new Vector3(moveInput.x, 0, moveInput.y);
+
+        if (inputDir.sqrMagnitude > 0.01f)
+        {
+            // 入力方向が変わったら完全停止
+            if (currentVelocity.sqrMagnitude > 0.001f)
+            {
+                Vector3 currentDir = currentVelocity.normalized;
+                Vector3 inputNorm = inputDir.normalized;
+
+                if (Vector3.Dot(currentDir, inputNorm) < 0.5f)
+                {
+                    currentVelocity = Vector3.zero;
+                }
+            }
+
+            // 加速
+            currentVelocity += inputDir * acceleration * Time.fixedDeltaTime;
+
+            // 最大速度制限
+            currentVelocity = Vector3.ClampMagnitude(currentVelocity, maxSpeed);
+        }
+        else
+        {
+            // 入力なし → 完全停止
+            currentVelocity = Vector3.zero;
+        }
+
+        rb.MovePosition(rb.position + currentVelocity * Time.fixedDeltaTime);
     }
 
     // 接触検知
     private void OnCollisionEnter(Collision other)
     {
+        if(GameManager.Instance.state != GameState.Play) return;
+
         // 接触したオブジェクトのタグが壁（Wall）なら死亡
         if(other.gameObject.CompareTag("Wall"))
         {
             GameManager.Instance.state = GameState.Start;
             Debug.Log("Playerが死亡しました");
+
+            var score = ScoreManager.Instance.score;
+            Debug.Log($"今回のスコア： {score}");
+
+            GameManager.Instance.ResetGame();
         }
     }
+
+    public float ReturnPosition()
+    {
+        var posY = this.gameObject.transform.position.y;
+
+        return posY;
+    }
+
+    public void ResetPlayer()
+    {
+        // 速度値（変数）のリセット
+        currentVelocity = Vector3.zero;
+        moveInput = Vector2.zero; 
+
+        // Rigidbody の物理的な勢いを完全にゼロにする
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            
+            rb.angularVelocity = Vector3.zero; // 回転の勢いも止める
+        }
+        
+        // 座標のリセット
+        if (rb != null)
+        {
+            rb.position = Vector3.zero;
+        }
+        else
+        {
+            transform.position = Vector3.zero;
+        }
+    }
+
 }

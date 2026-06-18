@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="ItemContainer" style="flex-grow: 1; -unity-text-align: upper-left; flex-direction: column-reverse;">
+        <ui:Button text="スロー&#10;&#10;Space" name="Item" style="width: 200px; height: 200px; top: auto; bottom: 5%; position: relative; flex-direction: column; left: 5%; font-size: 42px; -unity-font-style: bold; background-color: rgba(188, 188, 188, 0.5); background-image: none;"/>
+    </ui:VisualElement>
+</ui:UXML>
