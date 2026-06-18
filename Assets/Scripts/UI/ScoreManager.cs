@@ -21,6 +21,7 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
+        if(GameManager.Instance == null) return;
         if(GameManager.Instance.state != GameState.Play) return;
 
         timer += Time.deltaTime;
@@ -35,6 +36,8 @@ public class ScoreManager : MonoBehaviour
 
     public void ResetScore()
     {
+        TitleManager.Instance._score = score;
+
         score = 0;
     }
 }

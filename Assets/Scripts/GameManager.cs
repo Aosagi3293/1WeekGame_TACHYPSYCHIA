@@ -28,23 +28,28 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        state = GameState.Start;
+
         ResetGame();
     }
 
     private void Update()
     {
+        if(UIManager.Instance == null) return;
+
         switch(state)
         {
             case GameState.Start:
-                // UIToolKitを使うものとして仮置きスタート用
-                if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-                {
-                    StartGame();
-                }
+                UIManager.Instance.TitleActive(true);
+                UIManager.Instance.ScoreActive(false);
+                UIManager.Instance.ItemActive(false);
 
                 break;
 
             case GameState.Play:
+                UIManager.Instance.ScoreActive(true);
+                UIManager.Instance.ItemActive(true);
+                UIManager.Instance.TitleActive(false);
 
                 break;
         }
@@ -59,8 +64,6 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
-        state = GameState.Start;
-
         // 壁削除
         foreach (var wall in GameObject.FindGameObjectsWithTag("Wall"))
         {
@@ -68,9 +71,12 @@ public class GameManager : MonoBehaviour
         }
 
         // プレイヤー位置
-        PlayerController.Instance.transform.position = Vector3.zero;
+        PlayerController.Instance.ResetPlayer();
 
         // スコア
         ScoreManager.Instance.ResetScore();
+
+        // アイテム
+        ItemManager.Instance.Reset();
     }
 }

@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="ScoreContainer" picking-mode="Ignore" style="flex-grow: 1;">
+        <ui:Label text="Score: 0" name="Score" style="-unity-text-align: middle-center; border-right-width: 5px; border-left-width: 5px; border-top-width: 5px; border-bottom-width: 5px; background-color: rgba(59, 59, 59, 0.59); border-left-color: rgb(63, 61, 61); border-right-color: rgb(63, 61, 61); border-top-color: rgb(63, 61, 61); border-bottom-color: rgb(63, 61, 61); width: 20%; height: 10%; left: 79%; -unity-font-style: bold; font-size: 24px; color: rgb(253, 253, 253);"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 public class MapManager : MonoBehaviour
 {
     private float timer;
+
+    private bool canBuild = true;
     
     [Space(10)]
     [SerializeField] private float magnification;
@@ -26,14 +28,20 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
+        if(GameManager.Instance == null) return;
         if(GameManager.Instance.state != GameState.Play) return;
 
         timer += Time.deltaTime;
 
-        if(timer > 1.5f)
+        if(timer > 0 && canBuild == true)
         {
             build();
+            canBuild = false;
+        }
+        else if(timer > 4f)
+        {
             timer = 0;
+            canBuild = true;
         }
     }
 
@@ -42,7 +50,7 @@ public class MapManager : MonoBehaviour
         for(int i = 0; i < 6; i++)
         {
             // 生成したい「座標」と「角度」を決める
-            Vector3 spawnPosition = new Vector3(0, -20, 0); // 好きな座標に変えられます
+            Vector3 spawnPosition = new Vector3(0, -40, 0); // 好きな座標に変えられます
             Quaternion spawnRotation = Quaternion.Euler(0, 30+ i * 60, 0); // 回転（60ずつ）
 
             // 空っぽのゲームオブジェクトをその座標に作成する

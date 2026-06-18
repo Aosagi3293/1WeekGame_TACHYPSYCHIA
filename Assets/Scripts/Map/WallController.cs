@@ -13,6 +13,7 @@ public class WallController : MonoBehaviour
 
     private void Update()
     {
+        if(GameManager.Instance == null) return;
         if(GameManager.Instance.state != GameState.Play) return;
 
         float speed = baseSpeed + Time.time * 0.1f;
